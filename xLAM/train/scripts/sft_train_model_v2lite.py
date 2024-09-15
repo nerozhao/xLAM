@@ -4,17 +4,20 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 import torch
-from agentstudio.agentstudio_utils import load_yaml_file
+# from agentstudio.agentstudio_utils import load_yaml_file
 
 from transformers import AutoTokenizer, BitsAndBytesConfig, HfArgumentParser
 from huggingface_hub import login
 import json
 from xLAM.train.fm_datasets \
-    import (webshop_multi_turn_v2,
-            hotpotqa_multi_turn_v2,
-            toolalpaca_multi_turn_v2,
-            toolbench_multi_turn_v2,
-            apibank_multi_turn_v2,)
+    import (
+        xlamfc_multi_turn_v2,
+        # webshop_multi_turn_v2,
+        # hotpotqa_multi_turn_v2,
+        # toolalpaca_multi_turn_v2,
+        # toolbench_multi_turn_v2,
+        # apibank_multi_turn_v2,
+    )
 
 from xLAM.train.fm_datasets.base import SFTFoundationModelDataBase
 from xLAM.train.fm_utils.interleave_datasets import interleave_data
@@ -28,7 +31,8 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 @dataclass
 class ScriptArguments:
-    model_name: Optional[str] = field(default="mistralai/Mixtral-8x7B-Instruct-v0.1", metadata={"help": "the model name"})
+    model_name: Optional[str] = field(default="deepseek-ai/deepseek-coder-1.3b-instruct", metadata={"help": "the model name"})
+    # model_name: Optional[str] = field(default="mistralai/Mixtral-8x7B-Instruct-v0.1", metadata={"help": "the model name"})
     log_with: Optional[str] = field(default="wandb", metadata={"help": "use 'wandb' to log with wandb"})
     use_log: Optional[bool] = field(default=True, metadata={"help": "whether to use log such as wandb"})
     run_name: Optional[str] = field(default="test_run", metadata={"help": "experiment run name for 'wandb'"})
@@ -97,18 +101,20 @@ tokenizer.truncation_side = "left" # We want to keep the label side
 
 assert tokenizer.truncation_side == "left"
 
-sft_webshop_multi_turn = webshop_multi_turn_v2.SFTWebShopMultiTurnV2(tokenizer, script_args)
-sft_hotpotqa_multi_turn = hotpotqa_multi_turn_v2.SFTHotpotQAMultiTurnV2(tokenizer, script_args)
-sft_toolalpaca_multi_turn = toolalpaca_multi_turn_v2.SFTToolAlpacaMultiTurnV2(tokenizer, script_args)
-sft_toolbench_multi_turn = toolbench_multi_turn_v2.SFTToolBenchMultiTurnV2(tokenizer, script_args)
-sft_apibank_multi_turn = apibank_multi_turn_v2.SFTAPIBankMultiTurnV2(tokenizer, script_args)
+sft_xlamfc_multi_turn = xlamfc_multi_turn_v2.SFTXLamMultiTurnV2(tokenizer, script_args)
+# sft_webshop_multi_turn = webshop_multi_turn_v2.SFTWebShopMultiTurnV2(tokenizer, script_args)
+# sft_hotpotqa_multi_turn = hotpotqa_multi_turn_v2.SFTHotpotQAMultiTurnV2(tokenizer, script_args)
+# sft_toolalpaca_multi_turn = toolalpaca_multi_turn_v2.SFTToolAlpacaMultiTurnV2(tokenizer, script_args)
+# sft_toolbench_multi_turn = toolbench_multi_turn_v2.SFTToolBenchMultiTurnV2(tokenizer, script_args)
+# sft_apibank_multi_turn = apibank_multi_turn_v2.SFTAPIBankMultiTurnV2(tokenizer, script_args)
 
 data = [
-    sft_webshop_multi_turn,  # 14,082
-    sft_hotpotqa_multi_turn,  # 1919
-    sft_toolalpaca_multi_turn,  # 8,599
-    sft_toolbench_multi_turn,  # 57,843
-    sft_apibank_multi_turn,  # 4,902
+    sft_xlamfc_multi_turn,  # 60,000
+    # sft_webshop_multi_turn,  # 14,082
+    # sft_hotpotqa_multi_turn,  # 1919
+    # sft_toolalpaca_multi_turn,  # 8,599
+    # sft_toolbench_multi_turn,  # 57,843
+    # sft_apibank_multi_turn,  # 4,902
 ]
 
 sample_probs = [0.15, 0.02, 0.08, 0.7, 0.05]
